@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}Update{% endblock %}
+
+{% block content %}
+
+
+<h1>Search Discogs</h1>
+<div style="width: 20%; float:left">
+<div>
+    <p>
+        Artist:
+        <input type="text" id="artist_input">
+    </p>
+    <p>
+        Album:
+        <input type="text" id="album_input">
+    </p>
+    <p>
+        Year:
+        <input type="text" id="year_input">
+    </p>
+    <p>
+        <label for="format_input">Format:</label>
+        <select id="format_input">
+            <option value="vinyl">Vinyl</option>
+            <option value="CD">CD</option>
+            <option value="Cass">Cassette</option>
+            <option value="Box">Box Set</option>
+            <option value="Other">Other</option>
+        </select>
+        <br><br>
+    </p>
+    <button id="search_button" type="submit">Search</button>
+    </div>
+
+</div>
+<div style="width: 80%; float:right">
+</div>
+
+<script>
+var search_button = document.getElementById("search_button");
+search_button.addEventListener('click', e => {
+
+    var artist_input = document.getElementById("artist_input").value;
+    var album_input = document.getElementById("album_input").value;
+    var year_input = document.getElementById("year_input").value;
+    var format_input = document.getElementById("format_input").value;
+    var inputs = {"artist": artist_input, "album":album_input, "year":year_input, "format":format_input};
+
+    fetch("/search", {
+        method: 'POST',
+        headers: {'Accept': 'application/json', 'Content-Type': 'application/json'},
+        body: JSON.stringify(inputs)
+    })
+        // expecting json
+        .then(response => response.json())
+        // what doing with data
+        .then(data => {
+            console.log(data);
+            // loop through data values
+            // for item in data array
+            // create div 
+            // assign data to layout
+            // const new_entry = document.createElement("div")
+        });
+});
+
+</script>
+{% endblock %}
