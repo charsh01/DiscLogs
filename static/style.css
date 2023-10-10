@@ -1,5 +1,15 @@
 body {
     font-family: sans-serif;
-    color:brown;
-    background-color: floralwhite;
+    color:black;
+    background-color: gainsboro;
+}
+
+#div_l {
+    display: flex;
+    flex: 1;
+}
+
+#div_r {
+    display: flex;
+    flex: 1;
 }

@@ -36,6 +36,11 @@
 
 </div>
 <div style="width: 80%; float:right">
+    <body>
+        <div id="div1">
+            Search Results:
+        </div>
+    </body>
 </div>
 
 <script>
@@ -58,13 +63,41 @@ search_button.addEventListener('click', e => {
         // what doing with data
         .then(data => {
             console.log(data);
-            // loop through data values
-            // for item in data array
-            // create div 
-            // assign data to layout
-            // const new_entry = document.createElement("div")
-        });
-});
+            // Create new container for each entry returned by search.
+            for (var i = 0; i < data.length; i++) {
+                const old_container = document.getElementById("div1");
+                const new_container = document.createElement("div");
+                const l_container = document.createElement("div");
+                const r_container = document.createElement("div");
 
+                l_container.setAttribute('id',"div_l")
+                // r_container.setAttribute('id',"div_r")
+
+                // Handle each element in the entry
+                for (var j = 0; j < 6; j++){
+                    if (j == 0) {
+                        const new_img = document.createElement("img");
+                        new_img.src = data[i][0];
+                        new_img.setAttribute('height', '100px');
+                        new_img.setAttribute('width', '100px');
+                        l_container.appendChild(new_img);
+                        // l_container.setAttribute('height', '100px');
+                        // l_container.setAttribute('width', '100px');
+                        new_container.appendChild(l_container);
+                    }
+                    else {
+                        const new_line = document.createTextNode(data[i][j]);
+                        const txt_container = document.createElement("div");
+                        txt_container.appendChild(new_line);
+                        r_container.appendChild(txt_container);
+                        new_container.appendChild(r_container);
+                        // current_container.parentNode.insertBefore(new_line, current_container);
+                    }
+                old_container.parentNode.insertBefore(new_container, old_container.nextSibling);
+                }
+            }
+    }
+);
+});
 </script>
 {% endblock %}
