@@ -48,10 +48,11 @@ def search_data():
     data = request.json
     print(data)
     result = d.search(artist=data["artist"], title=data["album"], format=data["format"], year=data["year"], type="release")
+    
 
     # Filtering through returned data for most important information needed by the user to make an informed selection of the particular release they're searching for.
     def search_result(result):
-            
+
             # 'Try' to prevent null attribute errors; replace with str 'none'.
             try:
                 image = result.master.images[0]['resource_url']
@@ -70,16 +71,19 @@ def search_data():
             except AttributeError:
                 title = 'none'
             try:
-                format = result.formats[0]['name']
+                format_list = []
+                for x in result.formats[0]:
+                    format_list.append(result.formats[0][x])
+                    
             except AttributeError:
                 format = 'none'
             try:
                 year = result.year
             except AttributeError:
                 year = 'none'
-            entry = [image, id, artist, title, format, year]
+            entry = [image, id, artist, title, format_list, year]
             return entry
-
+    
     result_list = []
     for release in result: 
         result_list.append(search_result(release))

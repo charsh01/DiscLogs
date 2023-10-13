@@ -6,7 +6,8 @@
 
 
 <h1>Search Discogs</h1>
-<div style="width: 20%; float:left">
+<div class="main">
+<div class="left">
 <div>
     <p>
         Artist:
@@ -35,13 +36,19 @@
     </div>
 
 </div>
-<div style="width: 80%; float:right">
+<div class="right">
     <body>
         <div id="div1">
             Search Results:
         </div>
     </body>
 </div>
+</div>
+
+
+
+
+
 
 <script>
 var search_button = document.getElementById("search_button");
@@ -70,7 +77,9 @@ search_button.addEventListener('click', e => {
                 const l_container = document.createElement("div");
                 const r_container = document.createElement("div");
 
-                l_container.setAttribute('id',"div_l")
+                new_container.setAttribute('class',"box");
+                l_container.setAttribute('class',"lbox");
+                r_container.setAttribute('class',"rbox");
                 // r_container.setAttribute('id',"div_r")
 
                 // Handle each element in the entry
@@ -88,6 +97,7 @@ search_button.addEventListener('click', e => {
                     else {
                         const new_line = document.createTextNode(data[i][j]);
                         const txt_container = document.createElement("div");
+                        txt_container.setAttribute('class',"text_row");
                         txt_container.appendChild(new_line);
                         r_container.appendChild(txt_container);
                         new_container.appendChild(r_container);

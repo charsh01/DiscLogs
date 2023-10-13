@@ -11,5 +11,46 @@ body {
 
 #div_r {
     display: flex;
-    flex: 1;
+    flex: 2;
 }
+
+.box {
+    display: flex;
+}
+
+.lbox {
+    background-color: green;
+    display: flex;
+    padding: 5px;
+}
+
+.rbox {
+    outline-offset: -10px;
+    padding-inline: 5px;
+    background-color: aqua;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+}
+
+.text_row {
+    padding-left: 10px;
+    font-size: 11px;
+}
+
+.left {
+    left: 0;
+    background-color: orange;
+    width: 20%;
+  }
+  
+  /* Control the right side */
+  .right {
+    right: 0;
+    background-color: red;
+    width: 80%;
+  }
+
+  .main {
+    display: flex;
+  }
