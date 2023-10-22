@@ -1,113 +1,237 @@
 {% extends "base.html" %}
 
-{% block title %}Update{% endblock %}
+{% block title %}Disclogs{% endblock %}
 
 {% block content %}
 
 
-<h1>Search Discogs</h1>
+<h1><img src="static\images\disclogs_logo.png" style="min-width: 250px; max-width: 250px; padding-left: 10px; margin-top: 10px; position: relative; bottom:-15px;" alt="Disclogs"></h1>
+<hr/>
 <div class="main">
-<div class="left">
-<div>
-    <p>
-        Artist:
-        <input type="text" id="artist_input">
-    </p>
-    <p>
-        Album:
-        <input type="text" id="album_input">
-    </p>
-    <p>
-        Year:
-        <input type="text" id="year_input">
-    </p>
-    <p>
-        <label for="format_input">Format:</label>
-        <select id="format_input">
-            <option value="vinyl">Vinyl</option>
-            <option value="CD">CD</option>
-            <option value="Cass">Cassette</option>
-            <option value="Box">Box Set</option>
-            <option value="Other">Other</option>
-        </select>
-        <br><br>
-    </p>
-    <button id="search_button" type="submit">Search</button>
-    </div>
+    <div class="left">
+        <div class="aspectspacer">
+            <!-- Left-hand column with different user options. -->
 
-</div>
-<div class="right">
-    <body>
-        <div id="div1">
-            Search Results:
+            <!-- Insert select options: discogs or collection. -->
+            <!-- Search forms. -->
+            <div class="row">  
+                <label for="location_input" class="div_label">Data:</label>
+                <select id="location_input" style="height: 20px">
+                    <option value="discogs">Discogs</option>
+                    <option value="collection">My Collection</option>
+                </select>
+            </div>
+            <div class="row">  
+                <div class="div_label">Artist:</div>      
+                <div><input type="text" id="artist_input"></div> 
+            </div>
+            <div class="row">      
+                <div class="div_label">Album:</div>     
+                <div><input type="text" id="album_input"></div>  
+            </div>    
+            <div class="row">     
+                <div class="div_label">Label:</div>       
+                <div><input type="text" id="label_input"></div> 
+            </div>    
+            <div class="row">     
+                <div class="div_label">Year:</div>       
+                <div><input type="text" id="year_input"></div> 
+            </div>    
+            <div class="row">        
+                <label for="format_input" class="div_label">Format:</label>
+                <select id="format_input" style="height: 20px">
+                    <option value="">All</option>
+                    <option value="vinyl">Vinyl</option>
+                    <option value="CD">CD</option>
+                    <option value="Cass">Cassette</option>
+                    <option value="Box">Box Set</option>
+                    <option value="Other">Other</option>
+                </select>
+                <button id="search_button" type="submit" style="height: 20px; padding-left:20px; padding-right:19px; margin-left:9px; margin-bottom: 10px">Search</button>
+            </div>
+        <hr/>
+            <div style="display: flex; justify-content: center; align-items: center">
+                <button id="search_button" type="submit" style="height: 20px; margin-top: 10px; margin-bottom: 10px">Export to .csv</button>
+            </div>
+        <hr/>
+
         </div>
-    </body>
+    </div>
+    <div class="right">
+        <div style="border: 1cap; border-width: 1cap;">
+            <div id="div1">
+                <!-- insert 'searching' gif here. -->
+            </div>
+        </div>
+    </div>
 </div>
-</div>
-
-
-
-
-
 
 <script>
+
 var search_button = document.getElementById("search_button");
 search_button.addEventListener('click', e => {
 
-    var artist_input = document.getElementById("artist_input").value;
-    var album_input = document.getElementById("album_input").value;
-    var year_input = document.getElementById("year_input").value;
-    var format_input = document.getElementById("format_input").value;
-    var inputs = {"artist": artist_input, "album":album_input, "year":year_input, "format":format_input};
+    try {
+        var location_input = document.getElementById("location_input").value;
+    }
+    catch(err) {
+        var location_input = ""
+    }
+    try {
+        var artist_input = document.getElementById("artist_input").value;
+    }
+    catch(err) {
+        var artist_input = ""
+    }
+    try {
+        var album_input = document.getElementById("album_input").value;
+    }
+    catch(err) {
+        var album_input = "" 
+    }
+    try {
+        var label_input = document.getElementById("label_input").value;
+    }
+    catch(err) {
+    }
+        var label_input = "" 
+    try {
+        var year_input = document.getElementById("year_input").value;
+    }
+    catch(err) {
+        var year_input = "" 
+    }
+    try {
+        var format_input = document.getElementById("format_input").value;
+    }
+    catch(err) {
+        var format_input = "" 
+    }
+    
+    var inputs = {"location": location_input, "artist": artist_input, "album": album_input, "label": label_input, "year": year_input, "format":format_input};
 
-    fetch("/search", {
-        method: 'POST',
-        headers: {'Accept': 'application/json', 'Content-Type': 'application/json'},
-        body: JSON.stringify(inputs)
-    })
-        // expecting json
-        .then(response => response.json())
-        // what doing with data
-        .then(data => {
-            console.log(data);
-            // Create new container for each entry returned by search.
-            for (var i = 0; i < data.length; i++) {
-                const old_container = document.getElementById("div1");
-                const new_container = document.createElement("div");
-                const l_container = document.createElement("div");
-                const r_container = document.createElement("div");
+    if (location_input == "discogs"){
+        fetch("/search", {
+            method: 'POST',
+            headers: {'Accept': 'application/json', 'Content-Type': 'application/json'},
+            body: JSON.stringify(inputs)
+            })
+            // expecting json
+            .then(response => response.json())
+            // what doing with data
+            .then(data => {
+                console.log(data);
+                // Create new container for each entry returned by search.
+                for (var i = 0; i < data.length; i++) {
+                    const old_container = document.getElementById("div1");
+                    const new_container = document.createElement("div");
+                    const l_container = document.createElement("div");
+                    const r_container = document.createElement("div");
 
-                new_container.setAttribute('class',"box");
-                l_container.setAttribute('class',"lbox");
-                r_container.setAttribute('class',"rbox");
-                // r_container.setAttribute('id',"div_r")
+                    new_container.setAttribute('class',"box");
+                    l_container.setAttribute('class',"lbox");
+                    r_container.setAttribute('class',"rbox");
+                    // r_container.setAttribute('id',"div_r")
 
-                // Handle each element in the entry
-                for (var j = 0; j < 6; j++){
-                    if (j == 0) {
-                        const new_img = document.createElement("img");
-                        new_img.src = data[i][0];
-                        new_img.setAttribute('height', '100px');
-                        new_img.setAttribute('width', '100px');
-                        l_container.appendChild(new_img);
-                        // l_container.setAttribute('height', '100px');
-                        // l_container.setAttribute('width', '100px');
-                        new_container.appendChild(l_container);
-                    }
-                    else {
-                        const new_line = document.createTextNode(data[i][j]);
+                    // Handle each element in the entry
+                    for (var j = 0; j < 6; j++){
+                        if (j == 0) {
+                            const new_img = document.createElement("img");
+                            new_img.src = data[i][0];
+                            new_img.setAttribute('height', '150px');
+                            new_img.setAttribute('width', '150px');
+                            l_container.appendChild(new_img);
+                            // l_container.setAttribute('height', '100px');
+                            // l_container.setAttribute('width', '100px');
+                            new_container.appendChild(l_container);
+                        }
+                        else {
+                            const new_line = document.createTextNode(data[i][j]);
+                            const txt_container = document.createElement("div");
+                            txt_container.setAttribute('class',"text_row");
+                            txt_container.appendChild(new_line);
+                            r_container.appendChild(txt_container);
+                            new_container.appendChild(r_container);
+                            // current_container.parentNode.insertBefore(new_line, current_container);
+                        }
+                    old_container.parentNode.insertBefore(new_container, old_container.nextSibling);
+                }
+            }   
+        })
+    }
+    else if (location_input == "collection"){
+        fetch("search_collection", {
+            method: 'POST',
+            headers: {'Accept': 'application/json', 'Content-Type': 'application/json'},
+            body: JSON.stringify(inputs)
+            })
+            // expecting json
+            .then(response => response.json())
+            // what doing with data
+            .then(data => {
+                console.log(data);
+                console.log(data.length);
+
+                for (var i = 0; i < data.length; i++) {
+                    const old_container = document.getElementById("div1");
+                    const new_container = document.createElement("div");
+                    const l_container = document.createElement("div");
+                    const r_container = document.createElement("div");
+
+                    new_container.setAttribute('class',"box");
+                    l_container.setAttribute('class',"lbox");
+                    r_container.setAttribute('class',"rbox");
+
+                    // const line_catalog = document.createTextNode(data[i]['Catalog#'])
+                    // const line_artist = document.createTextNode(data[i]['Artist'])
+                    // const line_title = document.createTextNode(data[i]['Title'])
+                    // const line_label = document.createTextNode(data[i]['Label'])
+                    // const line_format = document.createTextNode(data[i]['Format'])
+                    // const line_genre = document.createTextNode(data[i]['Genre'])
+                    // const line_rating = document.createTextNode(data[i]['Rating'])
+                    // const line_released = document.createTextNode(data[i]['Released'])
+                    // const line_folder = document.createTextNode(data[i]['CollectionFolder'])
+                    // const line_added = document.createTextNode(data[i]['Date Added'])
+                    // const line_mediacon = document.createTextNode(data[i]['Collection Media Condition'])
+                    // const line_sleevecon = document.createTextNode(data[i]['Collection Sleeve Condition'])
+                    // const line_notes = document.createTextNode(data[i]['Collection Notes'])
+
+                    for (var key in data[i]){
+                        const new_line = document.createTextNode(key + ": " + data[i][key]);
                         const txt_container = document.createElement("div");
                         txt_container.setAttribute('class',"text_row");
                         txt_container.appendChild(new_line);
                         r_container.appendChild(txt_container);
                         new_container.appendChild(r_container);
-                        // current_container.parentNode.insertBefore(new_line, current_container);
                     }
-                old_container.parentNode.insertBefore(new_container, old_container.nextSibling);
-                }
-            }
-    }
-);
-});
+                    // const txt_container = document.createElement("div");
+                    // txt_container.setAttribute('class',"text_row");
+
+                    // txt_container.appendChild(line_catalog);
+
+                    // r_container.appendChild(txt_container);
+                    // new_container.appendChild(r_container);
+
+
+                    // for (var j = 0; j < data[i].length; j++){
+                    //     console.log(data[0]);
+                    //     const new_line = document.createTextNode(data[i][j]);
+                    //     const txt_container = document.createElement("div");
+                    //     txt_container.setAttribute('class',"text_row");
+                    //     txt_container.appendChild(new_line);
+                    //     r_container.appendChild(txt_container);
+                    //     new_container.appendChild(r_container);
+                    old_container.parentNode.insertBefore(new_container, old_container.nextSibling);
+                    }
+                
+            } 
+        )
+    }  
+})
+
+
+
+
+
 </script>
 {% endblock %}

@@ -19,38 +19,90 @@ body {
 }
 
 .lbox {
-    background-color: green;
     display: flex;
     padding: 5px;
 }
 
 .rbox {
     outline-offset: -10px;
-    padding-inline: 5px;
-    background-color: aqua;
+    justify-content: center;
     display: flex;
     flex-direction: column;
-    justify-content: space-around;
 }
 
 .text_row {
-    padding-left: 10px;
-    font-size: 11px;
+    padding-left: 7.5px;
+    font-size: 12px;
+    padding-bottom: 2.5px;
+    padding-top: 2.5px;
+    padding-right: 10px;
 }
 
 .left {
-    left: 0;
-    background-color: orange;
-    width: 20%;
+    /* background-color: orange; */
+    display: inline-block;
+    min-width: 260px;
+    max-width: 260px;
+    height: 75vh;
+    position: relative;
   }
   
+  .aspectspacer {
+    width: 100%; /* let the enlarged image height push .aspectwrapper's bottom edge */
+  }
+
+button:active {
+  background: #e5e5e5;
+  -webkit-box-shadow: inset 0px 0px 5px #c1c1c1;
+      -moz-box-shadow: inset 0px 0px 5px #c1c1c1;
+          box-shadow: inset 0px 0px 5px #c1c1c1;
+    outline: none;
+}
+
   /* Control the right side */
+  .right_divider {
+    border-style: inset;
+    border-width: .1cap;
+    width: auto;
+    height: auto;
+    margin-right: 10px;
+  }
+  
   .right {
     right: 0;
-    background-color: red;
-    width: 80%;
+    background-color: rgb(230, 230, 230);
+    border-style: inset;
+    border-width: .1cap;
+    width: auto;
+    height: auto;
+    position: relative;
+    overflow-x: hidden;
+    overflow-y: auto;
   }
 
   .main {
     display: flex;
+    min-width: 75vw;
+    max-width: 75vw;
+    min-height: 75vh;
+    max-height: 75vh;
   }
+
+  .row {
+    display: flex;
+    margin-top: 5px;
+    margin-bottom: 5px;
+  }
+
+  .div_label {
+    width: 70px;
+    margin-left: 5px;
+  }
+
+  .divider{
+    position:absolute;
+    left:50%;
+    top:10%;
+    bottom:10%;
+    border-left:1px solid white;
+}
