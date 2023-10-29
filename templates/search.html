@@ -170,8 +170,6 @@ search_button.addEventListener('click', e => {
             // what doing with data
             .then(data => {
                 console.log(data);
-                console.log(data.length);
-
                 for (var i = 0; i < data.length; i++) {
                     const old_container = document.getElementById("div1");
                     const new_container = document.createElement("div");
@@ -197,12 +195,23 @@ search_button.addEventListener('click', e => {
                     // const line_notes = document.createTextNode(data[i]['Collection Notes'])
 
                     for (var key in data[i]){
-                        const new_line = document.createTextNode(key + ": " + data[i][key]);
-                        const txt_container = document.createElement("div");
-                        txt_container.setAttribute('class',"text_row");
-                        txt_container.appendChild(new_line);
-                        r_container.appendChild(txt_container);
-                        new_container.appendChild(r_container);
+                        if (key == 'img_url'){
+                            const new_img = document.createElement("img");
+                            new_img.src = data[i][key];
+                            new_img.setAttribute('height', '150px');
+                            new_img.setAttribute('width', '150px');
+                            l_container.appendChild(new_img);
+                            new_container.appendChild(l_container);
+                        }
+                        else {
+                            const new_line = document.createTextNode(key + ": " + data[i][key]);
+                            const txt_container = document.createElement("div");
+                            txt_container.setAttribute('class',"text_row");
+                            txt_container.appendChild(new_line);
+                            r_container.appendChild(txt_container);
+                            new_container.appendChild(r_container);
+                        }
+                        old_container.parentNode.insertBefore(new_container, old_container.nextSibling);
                     }
                     // const txt_container = document.createElement("div");
                     // txt_container.setAttribute('class',"text_row");
@@ -221,11 +230,10 @@ search_button.addEventListener('click', e => {
                     //     txt_container.appendChild(new_line);
                     //     r_container.appendChild(txt_container);
                     //     new_container.appendChild(r_container);
-                    old_container.parentNode.insertBefore(new_container, old_container.nextSibling);
                     }
-                
-            } 
-        )
+                    
+                } 
+            )
     }  
 })
 

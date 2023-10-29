@@ -1,4 +1,5 @@
 # TO RUN: flask --app discogs-search run --debug
+# flask --app discogs-search --debug run
 
 from flask import (Flask, render_template, abort, jsonify, request,
                    redirect, url_for)
@@ -7,6 +8,7 @@ import discogs_client as dc
 from authenticate import authenticate
 from csv_converter import json_to_df
 from model import db
+import pandas as pd
 
 d = authenticate()
 
@@ -71,19 +73,21 @@ def search_data():
 @app.route('/search_collection', methods=['POST'])
 def df_search_result():
     data = request.json
-    result_list = []
 
     df = json_to_df('collection\collection.json')
     print(df)
-    df = df[df['Artist'] == data['artist']]
+    df = df[df['Artist'].str.lower() == data['artist'].lower()]
+    print(df)
+
+        
+    df_user = pd.read_csv('collection\\user_input.csv')
+    df = df.merge(df_user, on='release_id')
 
     df_entries = []
-
     for index, row in df.iterrows():
-
         # list.append(row.values.flatten().tolist())
         df_entries.append(row.values.flatten().tolist())
-        
+
     df_entries = df.to_json(orient='records')
     print(df_entries)
     return df_entries
