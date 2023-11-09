@@ -43,6 +43,7 @@ def search_data():
             except AttributeError:
                 title = 'none'
             try:
+            # TO DO: add condition for CDs to return different format value; currently returning 'album' and 'comp'
                 format_list = []
                 for x in result.formats[0]:
                     if x == "name":
@@ -65,20 +66,30 @@ def search_data():
             entry = [image, id, artist, title, format_list, year]
             return entry
     
-    result_list = []
-    for release in result: 
-        result_list.append(search_result(release))
-    return result_list
+    def df_match(release, df):
+        return release in df
+        
+    df = pd.read_csv('collection\collection.csv')
+    df = df.release_id.to_list()
+
+    result_d = {}
+    result_l = []
+
+    # !!! NOT WORKING CORRECTLY. ID changing, but rest not !!!
+    for release in result:
+        result_d = {"release_data": search_result(release), "in_collection": df_match(release.id, df)}
+        # result_d["in_collection"] = df_match(release.id, df)
+        result_l.append(result_d)
+    return result_l
 
 @app.route('/search_collection', methods=['POST'])
 def df_search_result():
     data = request.json
 
-    df = json_to_df('collection\collection.json')
-    print(df)
+    # df = json_to_df('collection\collection.json')
+    df = pd.read_csv('collection\collection.json')
+    # print(df)
     df = df[df['Artist'].str.lower() == data['artist'].lower()]
-    print(df)
-
         
     df_user = pd.read_csv('collection\\user_input.csv')
     df = df.merge(df_user, on='release_id')
@@ -92,7 +103,11 @@ def df_search_result():
     print(df_entries)
     return df_entries
 
-
+@app.route('/add', methods=['POST'])
+def df_add():
+    data = request.json
+    print(data)
+    return data
     
 
 

@@ -57,8 +57,8 @@
 
         </div>
     </div>
-    <div class="right">
-        <div style="border: 1cap; border-width: 1cap;">
+    <div id="right">
+        <div id="reset" style="border: 1cap; border-width: 1cap;">
             <div id="div1">
                 <!-- insert 'searching' gif here. -->
             </div>
@@ -68,8 +68,18 @@
 
 <script>
 
+function reset_container(id) {
+    let new_div1 = document.createElement("div1");
+    new_div1.setAttribute('id',"div1");
+    document.getElementById(id).innerHTML = "";
+    document.getElementById(id).appendChild(new_div1);
+}
+
 var search_button = document.getElementById("search_button");
+
 search_button.addEventListener('click', e => {
+
+    reset_container("reset");
 
     try {
         var location_input = document.getElementById("location_input").value;
@@ -117,46 +127,63 @@ search_button.addEventListener('click', e => {
             body: JSON.stringify(inputs)
             })
             // expecting json
-            .then(response => response.json())
-            // what doing with data
-            .then(data => {
-                console.log(data);
-                // Create new container for each entry returned by search.
-                for (var i = 0; i < data.length; i++) {
-                    const old_container = document.getElementById("div1");
-                    const new_container = document.createElement("div");
-                    const l_container = document.createElement("div");
-                    const r_container = document.createElement("div");
+        .then(response => response.json())
+        // what doing with data
+        .then(data => {
+            console.log(data);
+            // Create new container for each entry returned by search.
+            for (var i = 0; i < data.length; i++) {
+                const old_container = document.getElementById("div1");
+                const new_container = document.createElement("div2");
+                const l_container = document.createElement("div");
+                const r_container = document.createElement("div");
 
-                    new_container.setAttribute('class',"box");
-                    l_container.setAttribute('class',"lbox");
-                    r_container.setAttribute('class',"rbox");
-                    // r_container.setAttribute('id',"div_r")
+                new_container.setAttribute('class',"box");
+                l_container.setAttribute('class',"lbox");
+                r_container.setAttribute('class',"rbox");
+                // r_container.setAttribute('id',"div_r")
 
-                    // Handle each element in the entry
-                    for (var j = 0; j < 6; j++){
-                        if (j == 0) {
-                            const new_img = document.createElement("img");
-                            new_img.src = data[i][0];
-                            new_img.setAttribute('height', '150px');
-                            new_img.setAttribute('width', '150px');
-                            l_container.appendChild(new_img);
-                            // l_container.setAttribute('height', '100px');
-                            // l_container.setAttribute('width', '100px');
-                            new_container.appendChild(l_container);
-                        }
-                        else {
-                            const new_line = document.createTextNode(data[i][j]);
-                            const txt_container = document.createElement("div");
-                            txt_container.setAttribute('class',"text_row");
-                            txt_container.appendChild(new_line);
-                            r_container.appendChild(txt_container);
-                            new_container.appendChild(r_container);
-                            // current_container.parentNode.insertBefore(new_line, current_container);
-                        }
-                    old_container.parentNode.insertBefore(new_container, old_container.nextSibling);
-                }
-            }   
+                // Passing unique release ID back to add to .csv
+                const edit_button = document.createElement('edit_button');
+                edit_button.textContent = 'Add' 
+                
+                // Handle each element in the entry
+                for (var j = 0; j < 6; j++){
+
+                    // Add to collection button - have it hover in center of album art.
+                    if (data[i]['in_collection'] == false){
+                        // new_container.appendChild(add_button)
+                        add_button.addEventListener('click', e => {
+                            fetch("/add", {
+                            method: 'POST',
+                            headers: {'Accept': 'application/json', 'Content-Type': 'application/json'},
+                            body: JSON.stringify(data[i][1])
+                            })
+                        })
+                    }
+
+                    // Create album art.
+                    if (j == 0) {
+                        const new_img = document.createElement("img");
+                        new_img.src = data[i]['release_data'][0];
+                        new_img.setAttribute('height', '150px');
+                        new_img.setAttribute('width', '150px');
+                        l_container.appendChild(new_img);
+                        // l_container.setAttribute('height', '100px');
+                        // l_container.setAttribute('width', '100px');
+                        new_container.appendChild(l_container);
+                    }
+                    else {
+                        const new_line = document.createTextNode(data[i]['release_data'][j]);
+                        const txt_container = document.createElement("div");
+                        txt_container.setAttribute('class',"text_row");
+                        txt_container.appendChild(new_line);
+                        r_container.appendChild(txt_container);
+                        new_container.appendChild(r_container);
+                    }
+                old_container.parentNode.insertBefore(new_container, old_container.nextSibling);
+                } 
+            }  
         })
     }
     else if (location_input == "collection"){
@@ -231,7 +258,6 @@ search_button.addEventListener('click', e => {
                     //     r_container.appendChild(txt_container);
                     //     new_container.appendChild(r_container);
                     }
-                    
                 } 
             )
     }  
