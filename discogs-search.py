@@ -21,9 +21,10 @@ def index():
 def search_data():
     data = request.json
     print(data)
+
+    # This searches Discogs directly, trying to search paginated pull instead to save time.
     result = d.search(artist=data["artist"], title=data["album"], format=data["format"], year=data["year"], type="release")
     
-    # Filtering through returned data for most important information needed by the user to make an informed selection of the particular release they're searching for.
     def search_result(result):
             # 'Try' to prevent null attribute errors; replace with str 'none'.
             try:
@@ -103,12 +104,17 @@ def df_search_result():
     print(df_entries)
     return df_entries
 
-@app.route('/add', methods=['POST'])
+@app.route('/release_add', methods=['POST'])
 def df_add():
     data = request.json
     print(data)
     return data
-    
+
+@app.route('/release_edit', methods=['POST'])
+def df_edit():
+    data = request.json
+    print(data)
+    return data
 
 
 

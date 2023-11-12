@@ -47,7 +47,7 @@ body {
     position: relative;
   }
   
-  .aspectspacer {
+.aspectspacer {
     width: 100%; /* let the enlarged image height push .aspectwrapper's bottom edge */
   }
 
@@ -59,8 +59,8 @@ button:active {
     outline: none;
 }
 
-  /* Control the right side */
-  .right_divider {
+/* Control the right side */
+.right_divider {
     border-style: inset;
     border-width: .1cap;
     width: auto;
@@ -68,7 +68,7 @@ button:active {
     margin-right: 10px;
   }
   
-  .right {
+.right {
     right: 0;
     background-color: rgb(230, 230, 230);
     border-style: inset;
@@ -80,7 +80,7 @@ button:active {
     overflow-y: auto;
   }
 
-  .main {
+.main {
     display: flex;
     min-width: 75vw;
     max-width: 75vw;
@@ -88,21 +88,65 @@ button:active {
     max-height: 75vh;
   }
 
-  .row {
+.row {
     display: flex;
     margin-top: 5px;
     margin-bottom: 5px;
   }
 
-  .div_label {
+.div_label {
     width: 70px;
     margin-left: 5px;
   }
 
-  .divider{
+.divider{
     position:absolute;
     left:50%;
     top:10%;
     bottom:10%;
     border-left:1px solid white;
+}
+
+.button_style{
+  width: 150px;
+  height: 150px;
+  margin: auto;
+  text-align: center;
+  text-shadow: 1px 1px 2px pink;
+  background-size: 150px;
+  font-size: 25px; 
+  font-weight: bold;
+  font-weight: 200;
+  color:white;
+  border-width: 10px;
+}
+
+.text_style {
+  padding: 5px;
+  width: 20px;
+  height: 20px;
+  margin: 10px;
+  line-height: 20px;
+  color: white;
+  font-weight: bold;
+  font-size: 2em;
+  text-align: center;
+  margin-right: 100px;
+}
+
+.flex-container {
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.release-img {
+  position: relative;
+  margin: 20px auto 0;
+  width: 100%;
+  height: 150px;
+  width: 150px;
 }

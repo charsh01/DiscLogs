@@ -58,7 +58,14 @@
         </div>
     </div>
     <div id="right">
-        <div id="reset" style="border: 1cap; border-width: 1cap;">
+        <div id="reset" style="border: 1cap; border-width: 1cap; overflow-x: hidden; overflow-y: auto; height: 75vh;">
+            <div id="div1">
+                <!-- insert 'searching' gif here. -->
+            </div>
+        </div>
+    </div>
+    <div id="release_window">
+        <div id="reset" style="border: 1cap; border-width: 1cap; overflow-x: hidden; overflow-y: auto; height: 75vh;">
             <div id="div1">
                 <!-- insert 'searching' gif here. -->
             </div>
@@ -137,42 +144,49 @@ search_button.addEventListener('click', e => {
                 const new_container = document.createElement("div2");
                 const l_container = document.createElement("div");
                 const r_container = document.createElement("div");
+                const img_button = document.createElement("button");
 
                 new_container.setAttribute('class',"box");
                 l_container.setAttribute('class',"lbox");
                 r_container.setAttribute('class',"rbox");
-                // r_container.setAttribute('id',"div_r")
 
-                // Passing unique release ID back to add to .csv
-                const edit_button = document.createElement('edit_button');
-                edit_button.textContent = 'Add' 
-                
                 // Handle each element in the entry
                 for (var j = 0; j < 6; j++){
 
-                    // Add to collection button - have it hover in center of album art.
-                    if (data[i]['in_collection'] == false){
-                        // new_container.appendChild(add_button)
-                        add_button.addEventListener('click', e => {
-                            fetch("/add", {
-                            method: 'POST',
-                            headers: {'Accept': 'application/json', 'Content-Type': 'application/json'},
-                            body: JSON.stringify(data[i][1])
+                    // Create button with album art.
+                    if (j == 0) {
+                        img_button.setAttribute('id', 'button' + String(i));
+                        img_button.setAttribute('class','button_style');
+                        img_button.style.background = "url("+data[i]['release_data'][0]+")";
+                        img_button.style.backgroundSize = "150px";
+                        l_container.appendChild(img_button);
+                        new_container.appendChild(l_container);
+
+                        // Add to collection button - have it hover in center of album art.
+                        if (data[i]['in_collection'] == false){
+                            img_button.textContent = 'Add';
+                            img_button.style.borderColor = "red";
+                            img_button.addEventListener('click', e => {
+                                fetch("/release_add", {
+                                method: 'POST',
+                                headers: {'Accept': 'application/json', 'Content-Type': 'application/json'},
+                                body: JSON.stringify(data)
+                                })
                             })
-                        })
+                        }
+                        if (data[i]['in_collection'] == true){
+                            img_button.textContent = 'Edit';
+                            img_button.style.borderColor = "green";
+                            img_button.addEventListener('click', e => {
+                                fetch("/release_edit", {
+                                method: 'POST',
+                                headers: {'Accept': 'application/json', 'Content-Type': 'application/json'},
+                                body: JSON.stringify(data)
+                                })
+                            })
+                        }
                     }
 
-                    // Create album art.
-                    if (j == 0) {
-                        const new_img = document.createElement("img");
-                        new_img.src = data[i]['release_data'][0];
-                        new_img.setAttribute('height', '150px');
-                        new_img.setAttribute('width', '150px');
-                        l_container.appendChild(new_img);
-                        // l_container.setAttribute('height', '100px');
-                        // l_container.setAttribute('width', '100px');
-                        new_container.appendChild(l_container);
-                    }
                     else {
                         const new_line = document.createTextNode(data[i]['release_data'][j]);
                         const txt_container = document.createElement("div");
