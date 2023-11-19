@@ -23,48 +23,27 @@ def search_data():
     print(data)
 
     # This searches Discogs directly, trying to search paginated pull instead to save time.
-    result = d.search(artist=data["artist"], title=data["album"], format=data["format"], year=data["year"], type="release")
-    
-    def search_result(result):
+    result = d.search(data["artist"], type='artist')[0].releases
+
+    def get_data(release):
             # 'Try' to prevent null attribute errors; replace with str 'none'.
             try:
-                image = result.master.images[0]['resource_url']
+                image = release.master.images[0]['resource_url']
             except AttributeError:
                 image = 'none'
             try:
-                id = result.id
+                id = release.id
             except AttributeError:
                 id = 'none'
             try:
-                artist = result.artists[0].name
+                artist = release.artists[0].name
             except AttributeError:
                 artist = 'none'
             try:
-                title = result.title
+                title = release.title
             except AttributeError:
                 title = 'none'
-            try:
-            # TO DO: add condition for CDs to return different format value; currently returning 'album' and 'comp'
-                format_list = []
-                for x in result.formats[0]:
-                    if x == "name":
-                        continue
-                    if x == "qty":
-                        format_list.append(str(" ") + str(result.formats[0][x]) + "x" + str(result.formats[0]["descriptions"][0]))
-                    if x == "descriptions":
-                        try:
-                            format_list.append(str(" ") + str(result.formats[0][x][2]))
-                        except(IndexError):
-                            continue
-                    if x == "text":
-                        format_list.append(str(" ") + str(result.formats[0][x]))
-            except AttributeError:
-                format = 'none'
-            try:
-                year = result.year
-            except AttributeError:
-                year = 'none'
-            entry = [image, id, artist, title, format_list, year]
+            entry = [image, id, artist, title]
             return entry
     
     def df_match(release, df):
@@ -76,22 +55,74 @@ def search_data():
     result_d = {}
     result_l = []
 
-    # !!! NOT WORKING CORRECTLY. ID changing, but rest not !!!
     for release in result:
-        result_d = {"release_data": search_result(release), "in_collection": df_match(release.id, df)}
-        # result_d["in_collection"] = df_match(release.id, df)
+        # print(release)
+        result_d = {"release_data": get_data(release), "in_collection": df_match(release.id, df)}
         result_l.append(result_d)
     return result_l
 
 @app.route('/search_collection', methods=['POST'])
 def df_search_result():
     data = request.json
+    print(data)
+    df = pd.read_csv('collection\collection.csv')
 
-    # df = json_to_df('collection\collection.json')
-    df = pd.read_csv('collection\collection.json')
-    # print(df)
-    df = df[df['Artist'].str.lower() == data['artist'].lower()]
-        
+    # for param in data:
+    #     if param == "artist":
+    #         if data[param] == "":
+    #             continue
+    #         else:
+    #             df = df[df['Artist'].str.lower() == data['artist'].lower()]
+    #     if param == "album":
+    #         if data[param] == "":
+    #             continue
+    #         else:
+    #             df = df[df['Title'].str.lower() == data['album'].lower()]
+    #     if param == "label":
+    #         if data[param] == "":
+    #             continue
+    #         else:
+    #             df = df[df['Label'].str.lower() == data['label'].lower()]
+    #     elif param == "format":
+    #         if data[param] == "":
+    #             continue
+    #         elif data[param] == "Other":
+    #             other_formats = ['vinyl', 'CD','Cass']
+    #             df = df[df['Format'].str.lower() == data['format'].lower()]
+    #             df = df[~df['Format'].isin(other_formats)]
+    #         else:
+    #             df = df[df['Format'].str.lower() == data['format'].lower()]
+
+    for param in data:
+
+        if param == "artist":
+            if data[param] == "":
+                continue
+            else:
+                df = df[df['Artist'].str.contains(data['artist'], case=False)]
+        if param == "album":
+            if data[param] == "":
+                continue
+            else:
+                df = df[df['Title'].str.contains(data['album'], case=False)]
+        if param == "label":
+            if data[param] == "":
+                continue
+            else:
+                df = df[df['Label'].str.contains(data['label'], case=False)]
+        elif param == "format":
+            if data[param] == "":
+                continue
+            # Not working!!! vvvvvvvvvvvvvvvv
+            elif data[param] == "Other":
+                other_formats = ['vinyl','CD','Cass']
+                df = df[~df['Format'].isin(other_formats)]
+            else:
+                df = df[df['Format'].str.contains(data['format'], case=False)]
+
+
+
+
     df_user = pd.read_csv('collection\\user_input.csv')
     df = df.merge(df_user, on='release_id')
 
@@ -101,11 +132,43 @@ def df_search_result():
         df_entries.append(row.values.flatten().tolist())
 
     df_entries = df.to_json(orient='records')
-    print(df_entries)
+    
+    # # Working vvvvvvvv
+    # # df = json_to_df('collection\collection.json')
+    # df = pd.read_csv('collection\collection.csv')
+    # df = df[df['Artist'].str.lower() == data['artist'].lower()]
+    # print(df)    
+    # df_user = pd.read_csv('collection\\user_input.csv')
+    # df = df.merge(df_user, on='release_id')
+
+    # df_entries = []
+    # for index, row in df.iterrows():
+    #     # list.append(row.values.flatten().tolist())
+    #     df_entries.append(row.values.flatten().tolist())
+
+    # df_entries = df.to_json(orient='records')
+    # # print(df_entries)
+    # # Working ^^^^^^^^^^^^^
+
     return df_entries
 
-@app.route('/release_add', methods=['POST'])
+@app.route('/versions', methods=['POST'])
 def df_add():
+    data = request.json
+    # releases = d.search(data, type='release')
+
+    # for release in releases:
+    #     try: 
+    #         for version in release:
+    #             # country = version.country
+    #             print(version)
+
+    #         # print(release.id[data].versions)
+    #     except AttributeError:
+    #         print('Only one version.')
+    
+@app.route('/selected', methods=['POST'])
+def see_details():
     data = request.json
     print(data)
     return data
@@ -134,3 +197,5 @@ def df_edit():
     # print(type(result_list))
     # list = []
     # print(df)
+
+

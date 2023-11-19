@@ -33,10 +33,10 @@
                 <div class="div_label">Label:</div>       
                 <div><input type="text" id="label_input"></div> 
             </div>    
-            <div class="row">     
+            <!-- <div class="row">     
                 <div class="div_label">Year:</div>       
                 <div><input type="text" id="year_input"></div> 
-            </div>    
+            </div>     -->
             <div class="row">        
                 <label for="format_input" class="div_label">Format:</label>
                 <select id="format_input" style="height: 20px">
@@ -44,7 +44,6 @@
                     <option value="vinyl">Vinyl</option>
                     <option value="CD">CD</option>
                     <option value="Cass">Cassette</option>
-                    <option value="Box">Box Set</option>
                     <option value="Other">Other</option>
                 </select>
                 <button id="search_button" type="submit" style="height: 20px; padding-left:20px; padding-right:19px; margin-left:9px; margin-bottom: 10px">Search</button>
@@ -59,13 +58,15 @@
     </div>
     <div id="right">
         <div id="reset" style="border: 1cap; border-width: 1cap; overflow-x: hidden; overflow-y: auto; height: 75vh;">
+            <div id="result_number">
+            </div>
             <div id="div1">
                 <!-- insert 'searching' gif here. -->
             </div>
         </div>
     </div>
-    <div id="release_window">
-        <div id="reset" style="border: 1cap; border-width: 1cap; overflow-x: hidden; overflow-y: auto; height: 75vh;">
+    <div id="version_window">
+        <div id="reset" style="overflow-x: hidden; overflow-y: auto; width: 10vw; height: 75vh;">
             <div id="div1">
                 <!-- insert 'searching' gif here. -->
             </div>
@@ -92,40 +93,42 @@ search_button.addEventListener('click', e => {
         var location_input = document.getElementById("location_input").value;
     }
     catch(err) {
-        var location_input = ""
+        var location_input = "";
     }
     try {
         var artist_input = document.getElementById("artist_input").value;
     }
     catch(err) {
-        var artist_input = ""
+        var artist_input = "";
     }
     try {
         var album_input = document.getElementById("album_input").value;
     }
     catch(err) {
-        var album_input = "" 
+        var album_input = ""; 
     }
     try {
         var label_input = document.getElementById("label_input").value;
     }
     catch(err) {
+        console.log("label error")
+        var label_input = "";
     }
-        var label_input = "" 
-    try {
-        var year_input = document.getElementById("year_input").value;
-    }
-    catch(err) {
-        var year_input = "" 
-    }
+        
+    // try {
+    //     var year_input = document.getElementById("year_input").value;
+    // }
+    // catch(err) {
+    //     var year_input = "" 
+    // }
     try {
         var format_input = document.getElementById("format_input").value;
     }
     catch(err) {
-        var format_input = "" 
+        var format_input = ""; 
     }
     
-    var inputs = {"location": location_input, "artist": artist_input, "album": album_input, "label": label_input, "year": year_input, "format":format_input};
+    var inputs = {"location": location_input, "artist": artist_input, "album": album_input, "label": label_input, "format":format_input};
 
     if (location_input == "discogs"){
         fetch("/search", {
@@ -137,7 +140,8 @@ search_button.addEventListener('click', e => {
         .then(response => response.json())
         // what doing with data
         .then(data => {
-            console.log(data);
+            // console.log(data);
+
             // Create new container for each entry returned by search.
             for (var i = 0; i < data.length; i++) {
                 const old_container = document.getElementById("div1");
@@ -155,38 +159,30 @@ search_button.addEventListener('click', e => {
 
                     // Create button with album art.
                     if (j == 0) {
-                        img_button.setAttribute('id', 'button' + String(i));
+                        var release_id = String(data[i]['release_data'][1]);
+                        img_button.setAttribute('id', release_id);
                         img_button.setAttribute('class','button_style');
                         img_button.style.background = "url("+data[i]['release_data'][0]+")";
-                        img_button.style.backgroundSize = "150px";
+                        img_button.style.backgroundSize = "100px";
                         l_container.appendChild(img_button);
                         new_container.appendChild(l_container);
 
                         // Add to collection button - have it hover in center of album art.
                         if (data[i]['in_collection'] == false){
-                            img_button.textContent = 'Add';
                             img_button.style.borderColor = "red";
-                            img_button.addEventListener('click', e => {
-                                fetch("/release_add", {
-                                method: 'POST',
-                                headers: {'Accept': 'application/json', 'Content-Type': 'application/json'},
-                                body: JSON.stringify(data)
-                                })
-                            })
-                        }
+                                                    }
                         if (data[i]['in_collection'] == true){
-                            img_button.textContent = 'Edit';
                             img_button.style.borderColor = "green";
-                            img_button.addEventListener('click', e => {
-                                fetch("/release_edit", {
-                                method: 'POST',
-                                headers: {'Accept': 'application/json', 'Content-Type': 'application/json'},
-                                body: JSON.stringify(data)
-                                })
-                            })
                         }
+                        // Send specific release id back (to then return version data).
+                        img_button.addEventListener('click', e => {
+                            fetch("/versions", {
+                            method: 'POST',
+                            headers: {'Accept': 'application/json', 'Content-Type': 'application/json'},
+                            body: JSON.stringify(img_button.id)
+                            })
+                        })
                     }
-
                     else {
                         const new_line = document.createTextNode(data[i]['release_data'][j]);
                         const txt_container = document.createElement("div");
@@ -211,8 +207,16 @@ search_button.addEventListener('click', e => {
             // what doing with data
             .then(data => {
                 console.log(data);
+
+                // Result number.
+                const result_number = document.createTextNode(data.length+" Results:");
+                const old_container = document.getElementById("div1");
+                old_container.appendChild(result_number);
+
+
+
+
                 for (var i = 0; i < data.length; i++) {
-                    const old_container = document.getElementById("div1");
                     const new_container = document.createElement("div");
                     const l_container = document.createElement("div");
                     const r_container = document.createElement("div");
@@ -235,16 +239,29 @@ search_button.addEventListener('click', e => {
                     // const line_sleevecon = document.createTextNode(data[i]['Collection Sleeve Condition'])
                     // const line_notes = document.createTextNode(data[i]['Collection Notes'])
 
+                    const img_button = document.createElement("button");
+                    // img_button.src = data[i]["img_url"];
+                    // img_button.setAttribute('height', '100px');
+                    // img_button.setAttribute('width', '100px');
+                    img_button.setAttribute('id', data[i]["release_id"]);
+                    img_button.setAttribute('class','button_style');
+                    img_button.style.background = "url("+data[i]["img_url"]+")";
+                    img_button.style.backgroundSize = "100px";
+                    l_container.appendChild(img_button);
+                    new_container.appendChild(l_container);
+                    // id_return = String(data[i]["release_id"]);
+[]
+                    // Send specific release id back (to then return version data).
+                    img_button.addEventListener('click', e => {
+                        fetch('/selected', {
+                            method: 'POST',
+                            headers: {'Accept': 'application/json', 'Content-Type': 'application/json'},
+                            body: JSON.stringify(img_button.id)
+                            })
+                        })
+
                     for (var key in data[i]){
-                        if (key == 'img_url'){
-                            const new_img = document.createElement("img");
-                            new_img.src = data[i][key];
-                            new_img.setAttribute('height', '150px');
-                            new_img.setAttribute('width', '150px');
-                            l_container.appendChild(new_img);
-                            new_container.appendChild(l_container);
-                        }
-                        else {
+                        if (key == "Artist" || key == "Title") {
                             const new_line = document.createTextNode(key + ": " + data[i][key]);
                             const txt_container = document.createElement("div");
                             txt_container.setAttribute('class',"text_row");
@@ -252,8 +269,13 @@ search_button.addEventListener('click', e => {
                             r_container.appendChild(txt_container);
                             new_container.appendChild(r_container);
                         }
-                        old_container.parentNode.insertBefore(new_container, old_container.nextSibling);
+                    old_container.parentNode.insertBefore(new_container, old_container.nextSibling);
                     }
+
+
+
+
+
                     // const txt_container = document.createElement("div");
                     // txt_container.setAttribute('class',"text_row");
 
