@@ -67,34 +67,7 @@ def df_search_result():
     print(data)
     df = pd.read_csv('collection\collection.csv')
 
-    # for param in data:
-    #     if param == "artist":
-    #         if data[param] == "":
-    #             continue
-    #         else:
-    #             df = df[df['Artist'].str.lower() == data['artist'].lower()]
-    #     if param == "album":
-    #         if data[param] == "":
-    #             continue
-    #         else:
-    #             df = df[df['Title'].str.lower() == data['album'].lower()]
-    #     if param == "label":
-    #         if data[param] == "":
-    #             continue
-    #         else:
-    #             df = df[df['Label'].str.lower() == data['label'].lower()]
-    #     elif param == "format":
-    #         if data[param] == "":
-    #             continue
-    #         elif data[param] == "Other":
-    #             other_formats = ['vinyl', 'CD','Cass']
-    #             df = df[df['Format'].str.lower() == data['format'].lower()]
-    #             df = df[~df['Format'].isin(other_formats)]
-    #         else:
-    #             df = df[df['Format'].str.lower() == data['format'].lower()]
-
     for param in data:
-
         if param == "artist":
             if data[param] == "":
                 continue
@@ -120,63 +93,37 @@ def df_search_result():
             else:
                 df = df[df['Format'].str.contains(data['format'], case=False)]
 
-
-
-
     df_user = pd.read_csv('collection\\user_input.csv')
     df = df.merge(df_user, on='release_id')
 
-    df_entries = []
-    for index, row in df.iterrows():
-        # list.append(row.values.flatten().tolist())
-        df_entries.append(row.values.flatten().tolist())
-
     df_entries = df.to_json(orient='records')
-    
-    # # Working vvvvvvvv
-    # # df = json_to_df('collection\collection.json')
-    # df = pd.read_csv('collection\collection.csv')
-    # df = df[df['Artist'].str.lower() == data['artist'].lower()]
-    # print(df)    
-    # df_user = pd.read_csv('collection\\user_input.csv')
-    # df = df.merge(df_user, on='release_id')
-
-    # df_entries = []
-    # for index, row in df.iterrows():
-    #     # list.append(row.values.flatten().tolist())
-    #     df_entries.append(row.values.flatten().tolist())
-
-    # df_entries = df.to_json(orient='records')
-    # # print(df_entries)
-    # # Working ^^^^^^^^^^^^^
-
     return df_entries
 
 @app.route('/versions', methods=['POST'])
 def df_add():
     data = request.json
-    # releases = d.search(data, type='release')
 
-    # for release in releases:
-    #     try: 
-    #         for version in release:
-    #             # country = version.country
-    #             print(version)
-
-    #         # print(release.id[data].versions)
-    #     except AttributeError:
-    #         print('Only one version.')
     
 @app.route('/selected', methods=['POST'])
 def see_details():
     data = request.json
-    print(data)
-    return data
+
+    df = pd.read_csv('collection\collection.csv', dtype=str)
+    df_user = pd.read_csv('collection\\user_input.csv', dtype=str)
+    df = df[df.release_id == data]
+    df_merged = df.merge(df_user, how='left', on='release_id')
+    print(df_merged)
+
+    release_info = df.to_json(orient='records')
+
+    print(release_info)
+    return release_info
 
 @app.route('/release_edit', methods=['POST'])
 def df_edit():
     data = request.json
     print(data)
+
     return data
 
 

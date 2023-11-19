@@ -210,11 +210,12 @@ search_button.addEventListener('click', e => {
 
                 // Result number.
                 const result_number = document.createTextNode(data.length+" Results:");
+                const result_container = document.createElement("div");
                 const old_container = document.getElementById("div1");
-                old_container.appendChild(result_number);
 
-
-
+                result_container.setAttribute('class',"text_row");
+                result_container.appendChild(result_number);
+                old_container.appendChild(result_container);
 
                 for (var i = 0; i < data.length; i++) {
                     const new_container = document.createElement("div");
@@ -225,41 +226,33 @@ search_button.addEventListener('click', e => {
                     l_container.setAttribute('class',"lbox");
                     r_container.setAttribute('class',"rbox");
 
-                    // const line_catalog = document.createTextNode(data[i]['Catalog#'])
-                    // const line_artist = document.createTextNode(data[i]['Artist'])
-                    // const line_title = document.createTextNode(data[i]['Title'])
-                    // const line_label = document.createTextNode(data[i]['Label'])
-                    // const line_format = document.createTextNode(data[i]['Format'])
-                    // const line_genre = document.createTextNode(data[i]['Genre'])
-                    // const line_rating = document.createTextNode(data[i]['Rating'])
-                    // const line_released = document.createTextNode(data[i]['Released'])
-                    // const line_folder = document.createTextNode(data[i]['CollectionFolder'])
-                    // const line_added = document.createTextNode(data[i]['Date Added'])
-                    // const line_mediacon = document.createTextNode(data[i]['Collection Media Condition'])
-                    // const line_sleevecon = document.createTextNode(data[i]['Collection Sleeve Condition'])
-                    // const line_notes = document.createTextNode(data[i]['Collection Notes'])
-
                     const img_button = document.createElement("button");
-                    // img_button.src = data[i]["img_url"];
-                    // img_button.setAttribute('height', '100px');
-                    // img_button.setAttribute('width', '100px');
                     img_button.setAttribute('id', data[i]["release_id"]);
                     img_button.setAttribute('class','button_style');
                     img_button.style.background = "url("+data[i]["img_url"]+")";
                     img_button.style.backgroundSize = "100px";
                     l_container.appendChild(img_button);
                     new_container.appendChild(l_container);
+
                     // id_return = String(data[i]["release_id"]);
-[]
                     // Send specific release id back (to then return version data).
                     img_button.addEventListener('click', e => {
                         fetch('/selected', {
                             method: 'POST',
                             headers: {'Accept': 'application/json', 'Content-Type': 'application/json'},
                             body: JSON.stringify(img_button.id)
-                            })
                         })
-
+                        // expecting json
+                        .then(response => response.json())
+                        // what doing with data
+                        .then(data => {
+                            for (var i = 0; i < data.length; i++) {
+                                console.log(data[i])
+                                console.log("testing testing")
+                            }
+                        })
+                    })
+                    
                     for (var key in data[i]){
                         if (key == "Artist" || key == "Title") {
                             const new_line = document.createTextNode(key + ": " + data[i][key]);
