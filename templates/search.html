@@ -5,20 +5,23 @@
 {% block content %}
 
 
-<h1><img src="static\images\disclogs_logo.png" style="min-width: 250px; max-width: 250px; padding-left: 10px; margin-top: 10px; position: relative; bottom:-15px;" alt="Disclogs"></h1>
+<h1>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+    <img src="static\images\disclogs_logo.png" style="min-width: 250px; max-width: 250px; padding-left: 10px; margin-top: 10px; position: relative; bottom:-15px;" alt="Disclogs"></h1>
 <hr/>
 <div class="main">
     <div class="left">
         <div class="aspectspacer">
             <!-- Left-hand column with different user options. -->
-
             <!-- Insert select options: discogs or collection. -->
             <!-- Search forms. -->
             <div class="row">  
                 <label for="location_input" class="div_label">Data:</label>
                 <select id="location_input" style="height: 20px">
                     <option value="discogs">Discogs</option>
-                    <option value="collection">My Collection</option>
+                    <option value="collection">Collection</option>
+                    <option value="price">Prices</option>
+                    <option value="wantlist">Wantlist</option>
                 </select>
             </div>
             <div class="row">  
@@ -46,48 +49,71 @@
                     <option value="Cass">Cassette</option>
                     <option value="Other">Other</option>
                 </select>
-                <button id="search_button" type="submit" style="height: 20px; padding-left:20px; padding-right:19px; margin-left:9px; margin-bottom: 10px">Search</button>
+                <button id="search_button" type="submit" onclick="$('#loading').show();" style="height: 20px; padding-left:20px; padding-right:19px; margin-left:9px; margin-bottom: 10px">Search</button>
             </div>
         <hr/>
             <div style="display: flex; justify-content: center; align-items: center">
-                <button id="search_button" type="submit" style="height: 20px; margin-top: 10px; margin-bottom: 10px">Export to .csv</button>
+                <button id="csv_button" type="submit" style="height: 20px; margin-top: 10px; margin-bottom: 10px">Export to .csv</button>
             </div>
         <hr/>
-
+            <div style="display: flex; justify-content: center; align-items: center">
+                <button id="wantlist_button" type="submit" style="height: 20px; margin-top: 10px; margin-bottom: 10px">Wantlist</button>
+            </div>
+        <hr/>
+            <div style="display: flex; justify-content: center; align-items: center">
+                <button id="price_history" type="submit" style="height: 20px; margin-top: 10px; margin-bottom: 10px">Update Price History</button>
+            </div>
+        <hr/>
         </div>
     </div>
-    <div id="right">
+    <div id="right", class="right">
         <div id="reset" style="border: 1cap; border-width: 1cap; overflow-x: hidden; overflow-y: auto; height: 75vh;">
-            <div id="result_number">
+            <div id="result_header">
             </div>
             <div id="div1">
-                <!-- insert 'searching' gif here. -->
             </div>
         </div>
     </div>
     <div id="version_window">
-        <div id="reset" style="overflow-x: hidden; overflow-y: auto; width: 10vw; height: 75vh;">
-            <div id="div1">
-                <!-- insert 'searching' gif here. -->
+        <div id="reset2" style="overflow-x: hidden; overflow-y: auto; width: 25vw; height: 75vh;">
+            <div id="details_header">
+            </div>
+            <div id="div2">
             </div>
         </div>
+    </div>
+    <div id="loading_div">
+        <img src="static\images\loading.gif" id="load_gif" style="width:100px; height:100px; position: relative; padding-top: 120px; display: none;">
     </div>
 </div>
 
 <script>
 
-function reset_container(id) {
-    let new_div1 = document.createElement("div1");
-    new_div1.setAttribute('id',"div1");
+// Function to clear divs for presentation of new search results:
+function reset_container(id,tag) {
+    let new_div = document.createElement("div");
+    new_div.setAttribute('id',"div"+tag);
     document.getElementById(id).innerHTML = "";
-    document.getElementById(id).appendChild(new_div1);
+    document.getElementById(id).appendChild(new_div);
 }
 
+function search_gif(bool){
+    if (bool == true) {
+        let load_gif = document.getElementById("load_gif");
+        load_gif.style.display = "block";
+    }
+    else{
+        load_gif = document.getElementById("load_gif");
+        load_gif.style.display = "none";
+    }
+}
+
+// Search Discogs database and local .csv collection:
 var search_button = document.getElementById("search_button");
-
 search_button.addEventListener('click', e => {
-
-    reset_container("reset");
+    reset_container("reset","1");
+    reset_container("reset2","2");
+    search_gif(true);
 
     try {
         var location_input = document.getElementById("location_input").value;
@@ -140,8 +166,7 @@ search_button.addEventListener('click', e => {
         .then(response => response.json())
         // what doing with data
         .then(data => {
-            // console.log(data);
-
+            search_gif(false);
             // Create new container for each entry returned by search.
             for (var i = 0; i < data.length; i++) {
                 const old_container = document.getElementById("div1");
@@ -155,7 +180,7 @@ search_button.addEventListener('click', e => {
                 r_container.setAttribute('class',"rbox");
 
                 // Handle each element in the entry
-                for (var j = 0; j < 6; j++){
+                for (var j = 0; j < 4; j++){
 
                     // Create button with album art.
                     if (j == 0) {
@@ -202,96 +227,135 @@ search_button.addEventListener('click', e => {
             headers: {'Accept': 'application/json', 'Content-Type': 'application/json'},
             body: JSON.stringify(inputs)
             })
-            // expecting json
-            .then(response => response.json())
-            // what doing with data
-            .then(data => {
-                console.log(data);
+        // expecting json
+        .then(response => response.json())
+        // what doing with data
+        .then(data => {
+            console.log(data);
 
-                // Result number.
-                const result_number = document.createTextNode(data.length+" Results:");
-                const result_container = document.createElement("div");
-                const old_container = document.getElementById("div1");
+            // Result count header:
+            const result_number = document.createTextNode(data.length+" Results:");
+            const result_container = document.createElement("div");
+            const old_container = document.getElementById("div1");
 
-                result_container.setAttribute('class',"text_row");
-                result_container.appendChild(result_number);
-                old_container.appendChild(result_container);
+            result_container.setAttribute('class',"text_row");
+            result_container.appendChild(result_number);
+            old_container.appendChild(result_container);
 
-                for (var i = 0; i < data.length; i++) {
-                    const new_container = document.createElement("div");
-                    const l_container = document.createElement("div");
-                    const r_container = document.createElement("div");
+            for (var i = 0; i < data.length; i++) {
+                const new_container = document.createElement("div");
+                const l_container = document.createElement("div");
+                const r_container = document.createElement("div");
 
-                    new_container.setAttribute('class',"box");
-                    l_container.setAttribute('class',"lbox");
-                    r_container.setAttribute('class',"rbox");
+                new_container.setAttribute('class',"box");
+                l_container.setAttribute('class',"lbox");
+                r_container.setAttribute('class',"rbox");
 
-                    const img_button = document.createElement("button");
-                    img_button.setAttribute('id', data[i]["release_id"]);
-                    img_button.setAttribute('class','button_style');
-                    img_button.style.background = "url("+data[i]["img_url"]+")";
-                    img_button.style.backgroundSize = "100px";
-                    l_container.appendChild(img_button);
-                    new_container.appendChild(l_container);
+                const img_button = document.createElement("button");
+                img_button.setAttribute('id', data[i]["release_id"]);
+                img_button.setAttribute('class','button_style');
+                img_button.style.background = "url("+data[i]["img_url"]+")";
+                img_button.style.backgroundSize = "100px";
+                l_container.appendChild(img_button);
+                new_container.appendChild(l_container);
 
-                    // id_return = String(data[i]["release_id"]);
-                    // Send specific release id back (to then return version data).
-                    img_button.addEventListener('click', e => {
-                        fetch('/selected', {
-                            method: 'POST',
-                            headers: {'Accept': 'application/json', 'Content-Type': 'application/json'},
-                            body: JSON.stringify(img_button.id)
-                        })
-                        // expecting json
-                        .then(response => response.json())
-                        // what doing with data
-                        .then(data => {
-                            for (var i = 0; i < data.length; i++) {
-                                console.log(data[i])
-                                console.log("testing testing")
-                            }
-                        })
+                // id_return = String(data[i]["release_id"]);
+                // Send specific release id back (to then return version data).
+                img_button.addEventListener('click', e => {
+                    fetch('/selected', {
+                        method: 'POST',
+                        headers: {'Accept': 'application/json', 'Content-Type': 'application/json'},
+                        body: JSON.stringify(img_button.id)
                     })
-                    
-                    for (var key in data[i]){
-                        if (key == "Artist" || key == "Title") {
-                            const new_line = document.createTextNode(key + ": " + data[i][key]);
-                            const txt_container = document.createElement("div");
-                            txt_container.setAttribute('class',"text_row");
-                            txt_container.appendChild(new_line);
-                            r_container.appendChild(txt_container);
-                            new_container.appendChild(r_container);
+                    // expecting json
+                    .then(response => response.json())
+                    // what doing with data
+                    .then(data => {
+                        reset_container("reset2","2");
+
+                        const details_main = document.getElementById("div2");
+                        const detail_header = document.createTextNode("Release Details:");
+                        const detail_header_container = document.createElement("div");
+                        
+
+                        detail_header_container.setAttribute('class',"text_row");
+                        detail_header_container.appendChild(detail_header);                             
+                        details_main.appendChild(detail_header_container);
+                        
+                        // Displaying, organizing, and formatting release details:
+                        const details_block = document.createElement("div");
+                        for (let detail_name in data[0]){
+                            const detail_line = document.createTextNode(detail_name+": "+data[0][detail_name]);
+                            const detail_container = document.createElement("div");
+                            detail_container.setAttribute('class',"text_row");
+                            detail_container.appendChild(detail_line);
+                            details_block.appendChild(detail_container);
                         }
-                    old_container.parentNode.insertBefore(new_container, old_container.nextSibling);
+                        details_block.setAttribute('class',"window");
+                        details_main.appendChild(details_block);
+                        
+                        // Button to see price history:
+                        const price_button = document.createElement("button");
+                        price_button.setAttribute('class','price_button');
+                        price_button.innerText = 'Price History';
+                        details_main.appendChild(price_button);
+                        
+                        price_button.addEventListener('click', e => {
+                            fetch('/price_history', {
+                                method: 'POST',
+                                headers: {'Accept': 'application/json', 'Content-Type': 'application/json'},
+                                body: JSON.stringify(data[0]["release_id"])
+                            })
+                        }) 
+                    })
+                })          
+                for (var key in data[i]){
+                    if (key == "Artist" || key == "Title") {
+                        const new_line = document.createTextNode(key + ": " + data[i][key]);
+                        const txt_container = document.createElement("div");
+                        txt_container.setAttribute('class',"text_row");
+                        txt_container.appendChild(new_line);
+                        r_container.appendChild(txt_container);
+                        new_container.appendChild(r_container);
                     }
-
-
-
-
-
-                    // const txt_container = document.createElement("div");
-                    // txt_container.setAttribute('class',"text_row");
-
-                    // txt_container.appendChild(line_catalog);
-
-                    // r_container.appendChild(txt_container);
-                    // new_container.appendChild(r_container);
-
-
-                    // for (var j = 0; j < data[i].length; j++){
-                    //     console.log(data[0]);
-                    //     const new_line = document.createTextNode(data[i][j]);
-                    //     const txt_container = document.createElement("div");
-                    //     txt_container.setAttribute('class',"text_row");
-                    //     txt_container.appendChild(new_line);
-                    //     r_container.appendChild(txt_container);
-                    //     new_container.appendChild(r_container);
-                    }
-                } 
-            )
-    }  
+                old_container.parentNode.insertBefore(new_container, old_container.nextSibling);
+                }
+            }  
+        })
+    }
+    else if (location_input == "price"){
+        fetch('/price', {
+            method: 'POST',
+            headers: {'Accept': 'application/json', 'Content-Type': 'application/json'},
+            body: JSON.stringify(inputs)
+            })
+        // expecting json
+        .then(response => response.json())
+        // what doing with data
+        .then(data => {
+            console.log(data);
+        })
+    }
 })
+// Update price history with today's lowest listed prices:
+price_hist_b = document.getElementById("price_history")
+price_hist_b.addEventListener('click', e => {
+                            fetch('/price_hist', {
+                            method: 'POST',
+                            // headers: {'Accept': 'application/json', 'Content-Type': 'application/json'},
+                            // body: JSON.stringify(img_button.id)
+                            })
+                        })
 
+// Marketplace data collection and graphing:
+// market_button = document.getElementById("marketplace_button")
+// market_button.addEventListener('click', e => {
+//                             fetch('/marketplace', {
+//                             method: 'POST',
+//                             // headers: {'Accept': 'application/json', 'Content-Type': 'application/json'},
+//                             // body: JSON.stringify(img_button.id)
+//                             })
+//                         })
 
 
 

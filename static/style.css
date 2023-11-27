@@ -16,6 +16,15 @@ body {
 
 .box {
     display: flex;
+    background-color: white;
+    border-style: inset;
+    border-width: .1cap;
+    border-color: black;
+    margin-bottom: 5px;
+    margin-top: 5px;
+    margin-right:10px;
+    margin-left:10px;
+    min-width: 350px;
 }
 
 .lbox {
@@ -85,8 +94,8 @@ button:active {
     width: auto;
     height: auto;
     position: relative;
-    overflow-x: hidden;
-    overflow-y: auto;
+    margin-left: 10px;
+    margin-right: 10px;
   }
 
 .main {
@@ -128,6 +137,7 @@ button:active {
   font-weight: 200;
   color:white;
   border-width: 2px;
+  transition-duration: 0.4s;
 }
 
 .text_style {
@@ -159,3 +169,30 @@ button:active {
   height: 100px;
   width: 100px;
 }
+
+.window{
+  /* outline-offset: -10px; */
+  justify-content: center;
+  display: flex;
+  flex-direction: column;
+  background-color: white;
+  border-style: inset;
+  border-width: .1cap;
+  border-color: black;
+  margin-bottom: 5px;
+  margin-top: 5px;
+  margin-right:10px;
+}
+
+/* height: 20px; padding-left:20px; padding-right:19px; margin-left:9px; margin-bottom: 10px"> */
+.price_button{
+  height: 20px;
+}
+
+div#loading {
+  width: 35px;
+  height: 35px;
+  display: none;
+  background: url(/static/loading.gif) no-repeat;
+  cursor: wait;
+  }
