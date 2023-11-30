@@ -12,6 +12,8 @@ from model import db
 import pandas as pd
 from datetime import datetime
 
+app = Flask(__name__)
+
 d = authenticate()
 
 # Function for searching local collection by input fields; returns filtered dataframe.
@@ -44,8 +46,6 @@ def collection_search(data, df):
     df = df.merge(df_user, on='release_id')
     return df
 
-app = Flask(__name__)
-
 @app.route("/", methods=["GET","POST"])
 def index():
     return render_template("search.html")
@@ -56,18 +56,85 @@ def search():
     print(data)
 
     # Search Discogs using API.
+    # Could do this much more elegantly but out of time.
     def search_by_inputs(input_data):
-        for input in input_data:
-            if input_data[input] == "":
-                del input_data[input]
-        try: 
-            result = d.search(data["artist"], type='artist')[0].releases
-        except AttributeError:
-            try: 
-                result = d.search(data["title"], type='title')[0].releases
-            except AttributeError:
-                result = d.search(data["label"], type='label')[0].releases
-        return result
+        master_id_list = []
+        # Search if both artist and title.
+        if input_data['artist'] != '' and input_data['title'] != '':
+            result = d.search(input_data['artist'], type='artist')  
+            # print(result)    
+            for artist in result:
+                for release in artist.releases:
+                    # print(release)
+                    if release.data['type'] == 'master' and release.data['title'].lower() == input_data['title'].lower():
+                        master_id_list.append(str(release.id))
+                        print(str(release.title),str(release.id))
+
+        # Search if only artist.
+        elif input_data['artist'] != '' and input_data['title'] == '':
+            result = d.search(input_data['artist'], type='artist')  
+            for artist in result:
+                for release in artist.releases:
+                    if release.data['type'] == 'master':
+                        master_id_list.append(str(release.id))     
+                        print(str(release.title),str(release.id))   
+
+        # Search if only title.              
+        else:
+            result = d.search(input_data['title'], type='title')
+            for release in result:
+                    if release.data['type'] == 'master':
+                        master_id_list.append(str(release.id)) 
+                        print(str(release.title),str(release.id))
+
+        return master_id_list
+    
+        # else:
+        #     # Returns master id of matching titles.
+        #     result = d.search(input_data['title'], type='title')      
+        #     for release in result:
+        #         if release.data['type'] == 'master':
+        #             master_id = str(release.id)
+        #     return master_id
+        
+
+
+        # input_types = ['artist', 'title','label']
+        # Gets first non-empty field from inputs and pull releases.
+        # for input in input_types:
+        #     if input_data[input] == "":
+        #         input_types.remove(input)
+        #         continue
+        #     else:
+        #         result = d.search(input_data[input], type=input)[0].releases
+        #         input_types.remove(input)
+        #         break
+
+
+        # If any fields not empty, filter returned results accordingly.
+        
+            # 
+            # if release.title == 'title':
+
+
+
+                # Not ready yet. Might have to make label solo search.
+                # Not enough time to dig through this before due date.
+                # if input == 'label':
+                #     for release in result:
+                #         if release.label == 'title':
+                #             result = release.title
+           
+        
+
+        # try: 
+        #     result = d.search(data["artist"], type='artist')[0].releases
+        # except AttributeError:
+        #     try: 
+        #         result = d.search(data["title"], type='title')[0].releases
+        #     except AttributeError:
+        #         result = d.search(data["label"], type='label')[0].releases
+        # return result
 
     # Collects necessary release data to display.
     def get_data(release):
@@ -101,25 +168,29 @@ def search():
             
             # entry = [image, id, artist, title]
             entry = {"image":image, "id":id, "Artist":artist, "Title":title, "versions":versions}
-            print(entry)
             return entry
     
     # Checks if release id is in collection, returning true/false.
     def df_match_bool(release, df):
         return release in df
         
-    df = pd.read_csv('collection\collection.csv')
-    release_id_list = df.release_id.to_list()
+    # df = pd.read_csv('collection\collection.csv')
+    # release_id_list = df.release_id.to_list()
 
-    result_d = {}
-    result_l = []
+    # result_d = {}
+    # result_l = []
 
     result = search_by_inputs(data)
-    for release in result:
-        result_d = {"release_data": get_data(release), "in_collection": df_match_bool(release.id, df)}
-        result_l.append(result_d)
-    return result_l
+    print(result)
 
+
+    # for release in result:
+    #     # result_d = {"release_data": get_data(release), "in_collection": df_match_bool(release.id, df)}
+    #     result_d = {"release_data": get_data(release)}
+    #     result_l.append(result_d)
+    return result
+
+# !!! merge not displaying correct/working? No user data (price paid? double check this)
 @app.route('/search_collection', methods=['POST'])
 def df_search_result():
     data = request.json
@@ -182,11 +253,22 @@ def df_edit():
     print(data)
     return data
 
-@app.route('/price_history', methods=['POST'])
-def price_history():
-    release_id = request.json
-
+# Show price history graph for individual release when searching collection and selecting release in collection.
+@app.route('/price_release', methods=['POST'])
+def price_release_img():
+    release_id = int(request.json)
     print(release_id)
+    df_history = pd.read_csv('collection\\price_history.csv')
+    df_paid = pd.read_csv('collection\\user_input.csv')
+    df_paid_columns = ['release_id','paid']
+    df_paid = df_paid[df_paid_columns]
+    paid_row = df_paid[df_paid.release_id == release_id]
+    release_row = paid_row.merge(df_history, on='release_id')
+    print(release_row)
+
+    release_row.plot.barh(x='release_id',y='paid')
+    plt.show()
+
     return release_id
 
 # Returns price history data for releases in collection that search values return.
@@ -221,29 +303,34 @@ def marketplace_graph():
 
     return return_data
 
-@app.route('/price_hist', methods=['POST'])
+# Working
+# Tracks changes in lowest price listings (only marketplace data accessible via Discogs) 
+# Updates price_history.csv with new value in a new column by date if the new value differs from old.
+@app.route('/price_hist/', methods=['POST'])
 def update_total_values():
     df = pd.read_csv('collection\\price_history.csv')
-
     df_paid = pd.read_csv('collection\\user_input.csv')
-    columns = ['release_id','paid']
-    df_paid = df_paid[columns]
 
-    # for release, row in df.iterrows():
-    #     id = row.release_id
-    #     current_low = d.release(id).marketplace_stats.lowest_price.value
-    #     df[str(datetime.today().strftime('%Y-%m-%d'))] = current_low
+    my_columns = ['release_id','paid']
+    df_paid = df_paid[my_columns]
+    df_columns = list(df)
+
     col_head = str(datetime.today().strftime('%Y-%m-%d'))
     
     for release, row in df.iterrows():
-        id = str(row.release_id)
+        id = str(int(row.release_id))
         try:
             current_low = d.release(id).marketplace_stats.lowest_price.value
-            print(current_low)
-            df.at[release, col_head] = current_low
+            # Comparing price returned from check to current price, skipping if same.
+            if (str(current_low)) != (str(df.at[release, df_columns[-1]])):
+                print(id,":"," new price - ",current_low,".")
+                df.at[release, col_head] = current_low
+            else:
+                print(id,": price is the same.")
         except AttributeError:
             df.at[release, col_head] = np.NaN
-        print(id," ",current_low)
+            print(id,"NULL")
+        
 
     df.to_csv('collection\\price_history.csv', index=False)
 

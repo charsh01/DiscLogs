@@ -61,7 +61,7 @@
             </div>
         <hr/>
             <div style="display: flex; justify-content: center; align-items: center">
-                <button id="price_history" type="submit" style="height: 20px; margin-top: 10px; margin-bottom: 10px">Update Price History</button>
+                <button id="price_history_b" type="submit" style="height: 20px; margin-top: 10px; margin-bottom: 10px">Update Price History</button>
             </div>
         <hr/>
         </div>
@@ -154,7 +154,7 @@ search_button.addEventListener('click', e => {
         var format_input = ""; 
     }
     
-    var inputs = {"location": location_input, "artist": artist_input, "album": album_input, "label": label_input, "format":format_input};
+    var inputs = {"location": location_input, "artist": artist_input, "title": album_input, "label": label_input, "format":format_input};
 
     if (location_input == "discogs"){
         fetch("/search", {
@@ -215,7 +215,7 @@ search_button.addEventListener('click', e => {
                         txt_container.appendChild(new_line);
                         r_container.appendChild(txt_container);
                         new_container.appendChild(r_container);
-                    }
+                        }
                 old_container.parentNode.insertBefore(new_container, old_container.nextSibling);
                 } 
             }  
@@ -231,6 +231,7 @@ search_button.addEventListener('click', e => {
         .then(response => response.json())
         // what doing with data
         .then(data => {
+            search_gif(false);
             console.log(data);
 
             // Result count header:
@@ -266,7 +267,7 @@ search_button.addEventListener('click', e => {
                         method: 'POST',
                         headers: {'Accept': 'application/json', 'Content-Type': 'application/json'},
                         body: JSON.stringify(img_button.id)
-                    })
+                        })
                     // expecting json
                     .then(response => response.json())
                     // what doing with data
@@ -290,7 +291,7 @@ search_button.addEventListener('click', e => {
                             detail_container.setAttribute('class',"text_row");
                             detail_container.appendChild(detail_line);
                             details_block.appendChild(detail_container);
-                        }
+                            }
                         details_block.setAttribute('class',"window");
                         details_main.appendChild(details_block);
                         
@@ -299,13 +300,19 @@ search_button.addEventListener('click', e => {
                         price_button.setAttribute('class','price_button');
                         price_button.innerText = 'Price History';
                         details_main.appendChild(price_button);
-                        
                         price_button.addEventListener('click', e => {
-                            fetch('/price_history', {
+                            fetch('/price_release', {
                                 method: 'POST',
                                 headers: {'Accept': 'application/json', 'Content-Type': 'application/json'},
                                 body: JSON.stringify(data[0]["release_id"])
+                                })
+                            .then(response => response.json())
+                            .then(data => {
+                                // WORKING HERE 11.29.23
+                                // ADD THE MATPLOTLIB IMG OUTPUT
+                                // https://stackoverflow.com/questions/50728328/python-how-to-show-matplotlib-in-flask
                             })
+                                
                         }) 
                     })
                 })          
@@ -337,15 +344,18 @@ search_button.addEventListener('click', e => {
         })
     }
 })
+
 // Update price history with today's lowest listed prices:
-price_hist_b = document.getElementById("price_history")
+price_hist_b = document.getElementById("price_history_b")
 price_hist_b.addEventListener('click', e => {
                             fetch('/price_hist', {
                             method: 'POST',
                             // headers: {'Accept': 'application/json', 'Content-Type': 'application/json'},
-                            // body: JSON.stringify(img_button.id)
+                            // body: JSON.stringify("send")
                             })
                         })
+
+
 
 // Marketplace data collection and graphing:
 // market_button = document.getElementById("marketplace_button")
