@@ -308,9 +308,10 @@ search_button.addEventListener('click', e => {
                                 })
                             .then(response => response.json())
                             .then(data => {
-                                // WORKING HERE 11.29.23
-                                // ADD THE MATPLOTLIB IMG OUTPUT
-                                // https://stackoverflow.com/questions/50728328/python-how-to-show-matplotlib-in-flask
+                                const price_img = document.createElement("div");
+                                price_img.style.background = "url(/plot.png)";
+                                price_img.style.backgroundSize = "300px";
+                                details_main.appendChild(img_button);
                             })
                                 
                         }) 
@@ -354,18 +355,6 @@ price_hist_b.addEventListener('click', e => {
                             // body: JSON.stringify("send")
                             })
                         })
-
-
-
-// Marketplace data collection and graphing:
-// market_button = document.getElementById("marketplace_button")
-// market_button.addEventListener('click', e => {
-//                             fetch('/marketplace', {
-//                             method: 'POST',
-//                             // headers: {'Accept': 'application/json', 'Content-Type': 'application/json'},
-//                             // body: JSON.stringify(img_button.id)
-//                             })
-//                         })
 
 
 

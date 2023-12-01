@@ -11,6 +11,10 @@ from csv_converter import json_to_df
 from model import db
 import pandas as pd
 from datetime import datetime
+import io
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+from flask import Response
 
 app = Flask(__name__)
 
@@ -212,33 +216,26 @@ def df_edit():
 @app.route('/price_release', methods=['POST'])
 def price_release_img():
     release_id = int(request.json)
-
-    # Testing showing entire graph:
-
     df_history = pd.read_csv('collection\\price_history.csv')
     df_paid = pd.read_csv('collection\\user_input.csv')
     df_paid_columns = ['release_id','paid']
     df_paid = df_paid[df_paid_columns]
     paid_row = df_paid[df_paid.release_id == release_id]
     df_merged = paid_row.merge(df_history, on='release_id')
-
     # Dropping null values so we can deal only with dates with valid price change values.
     df_plot = df_merged.dropna(axis='columns')
-    print(df_plot)
-
-    ax = df_plot[['paid',df_plot.iloc[:,-1:]]].plot(kind='bar', title ="V comp", figsize=(15, 10), legend=True, fontsize=12)
-
-    # list_price_bar = price_graph.add_subplot(111)
+    df_plot = df_plot.set_index("release_id")
+    df_plot.plot.barh()
     plt.show()
-
     return "test"
+
+
 
 # Returns price history data for releases in collection that search values return.
 @app.route('/price', methods=['POST'])
 def marketplace_graph():
     data = request.json
 
-    
     df = pd.read_csv('collection\collection.csv')
     df = collection_search(data, df)
     columns = ['img_url','release_id','paid']
@@ -297,7 +294,6 @@ def update_total_values():
             df.at[release, col_head] = np.NaN
             print(id,"NULL")
         
-
     df.to_csv('collection\\price_history.csv', index=False)
 
     return "test"
