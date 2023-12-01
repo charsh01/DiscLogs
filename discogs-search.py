@@ -57,7 +57,7 @@ def search():
 
     # Search Discogs using API.
     # Could do this much more elegantly but out of time.
-    def search_by_inputs(input_data):
+    def search_for_master(input_data):
         master_id_list = []
         # Search if both artist and title.
         if input_data['artist'] != '' and input_data['title'] != '':
@@ -68,7 +68,7 @@ def search():
                     # print(release)
                     if release.data['type'] == 'master' and release.data['title'].lower() == input_data['title'].lower():
                         master_id_list.append(str(release.id))
-                        print(str(release.title),str(release.id))
+                        
 
         # Search if only artist.
         elif input_data['artist'] != '' and input_data['title'] == '':
@@ -77,7 +77,6 @@ def search():
                 for release in artist.releases:
                     if release.data['type'] == 'master':
                         master_id_list.append(str(release.id))     
-                        print(str(release.title),str(release.id))   
 
         # Search if only title.              
         else:
@@ -85,56 +84,8 @@ def search():
             for release in result:
                     if release.data['type'] == 'master':
                         master_id_list.append(str(release.id)) 
-                        print(str(release.title),str(release.id))
 
-        return master_id_list
-    
-        # else:
-        #     # Returns master id of matching titles.
-        #     result = d.search(input_data['title'], type='title')      
-        #     for release in result:
-        #         if release.data['type'] == 'master':
-        #             master_id = str(release.id)
-        #     return master_id
-        
-
-
-        # input_types = ['artist', 'title','label']
-        # Gets first non-empty field from inputs and pull releases.
-        # for input in input_types:
-        #     if input_data[input] == "":
-        #         input_types.remove(input)
-        #         continue
-        #     else:
-        #         result = d.search(input_data[input], type=input)[0].releases
-        #         input_types.remove(input)
-        #         break
-
-
-        # If any fields not empty, filter returned results accordingly.
-        
-            # 
-            # if release.title == 'title':
-
-
-
-                # Not ready yet. Might have to make label solo search.
-                # Not enough time to dig through this before due date.
-                # if input == 'label':
-                #     for release in result:
-                #         if release.label == 'title':
-                #             result = release.title
-           
-        
-
-        # try: 
-        #     result = d.search(data["artist"], type='artist')[0].releases
-        # except AttributeError:
-        #     try: 
-        #         result = d.search(data["title"], type='title')[0].releases
-        #     except AttributeError:
-        #         result = d.search(data["label"], type='label')[0].releases
-        # return result
+        return master_id_list, result
 
     # Collects necessary release data to display.
     def get_data(release):
@@ -173,22 +124,26 @@ def search():
     # Checks if release id is in collection, returning true/false.
     def df_match_bool(release, df):
         return release in df
-        
-    # df = pd.read_csv('collection\collection.csv')
-    # release_id_list = df.release_id.to_list()
 
-    # result_d = {}
-    # result_l = []
+    master_id_list, result = search_for_master(data)
 
-    result = search_by_inputs(data)
-    print(result)
+    if result.data.type == "artist":
+        for id in master_id_list:
+            for release in result:
+                if release.data.id == id:
+                    master_info = get_data(release)
+
+    # if result.data.type == "artist":
+    #     for release in result:
+    #         print("this is the release:",release)
+    print(master_info)
 
 
     # for release in result:
     #     # result_d = {"release_data": get_data(release), "in_collection": df_match_bool(release.id, df)}
     #     result_d = {"release_data": get_data(release)}
     #     result_l.append(result_d)
-    return result
+    return "testing"
 
 # !!! merge not displaying correct/working? No user data (price paid? double check this)
 @app.route('/search_collection', methods=['POST'])
@@ -257,16 +212,17 @@ def df_edit():
 @app.route('/price_release', methods=['POST'])
 def price_release_img():
     release_id = int(request.json)
-    print(release_id)
+
+    # Testing showing entire graph:
+
     df_history = pd.read_csv('collection\\price_history.csv')
     df_paid = pd.read_csv('collection\\user_input.csv')
     df_paid_columns = ['release_id','paid']
     df_paid = df_paid[df_paid_columns]
-    paid_row = df_paid[df_paid.release_id == release_id]
-    release_row = paid_row.merge(df_history, on='release_id')
-    print(release_row)
+    # paid_row = df_paid[df_paid.release_id == release_id]
+    df_merged = df_paid.merge(df_history, on='release_id')
 
-    release_row.plot.barh(x='release_id',y='paid')
+    df_merged.plot.barh(x='release_id',y='paid')
     plt.show()
 
     return release_id
@@ -275,6 +231,8 @@ def price_release_img():
 @app.route('/price', methods=['POST'])
 def marketplace_graph():
     data = request.json
+
+    
     df = pd.read_csv('collection\collection.csv')
     df = collection_search(data, df)
     columns = ['img_url','release_id','paid']
@@ -301,6 +259,7 @@ def marketplace_graph():
             perc_val = 'Value: -'+str(round(100*(1-(paid/current_low))))+"%"
         return_data = [low_val, paid_val, perc_val]
 
+
     return return_data
 
 # Working
@@ -314,6 +273,7 @@ def update_total_values():
     my_columns = ['release_id','paid']
     df_paid = df_paid[my_columns]
     df_columns = list(df)
+
 
     col_head = str(datetime.today().strftime('%Y-%m-%d'))
     
