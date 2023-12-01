@@ -7,14 +7,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import discogs_client as dc
 from authenticate import authenticate
-from csv_converter import json_to_df
-from model import db
 import pandas as pd
 from datetime import datetime
-import io
-from matplotlib.figure import Figure
-from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-from flask import Response
 
 app = Flask(__name__)
 
@@ -136,17 +130,7 @@ def search():
             for release in result:
                 if release.data.id == id:
                     master_info = get_data(release)
-
-    # if result.data.type == "artist":
-    #     for release in result:
-    #         print("this is the release:",release)
     print(master_info)
-
-
-    # for release in result:
-    #     # result_d = {"release_data": get_data(release), "in_collection": df_match_bool(release.id, df)}
-    #     result_d = {"release_data": get_data(release)}
-    #     result_l.append(result_d)
     return "testing"
 
 # !!! merge not displaying correct/working? No user data (price paid? double check this)
@@ -240,14 +224,7 @@ def marketplace_graph():
     df = collection_search(data, df)
     columns = ['img_url','release_id','paid']
     df = df[columns]
-    # df_entries = df.to_json(orient='records')
 
-    # printtest = []
-    # for entry in df_entries:
-    #     test = d.release(int(entry['release_id'])).marketplace_stats
-    #     printtest.append(test)
-
-    # print(df_entries[0]['release_id'])
     for release, row in df.iterrows():
         id = row.release_id
         current_low = d.release(id).marketplace_stats.lowest_price.value
@@ -297,20 +274,6 @@ def update_total_values():
     df.to_csv('collection\\price_history.csv', index=False)
 
     return "test"
-    # for index, row in df.iterrows():
-    #     # list.append(row.values.flatten().tolist())
-    #     entry[index] = row.values.flatten().tolist()
 
-    # for row in df.iterrows():
-    #     print("row test", row.tolist)
-    #     result_list.append(row.tolist())
-    # data = result_list.to_json()
-    # for index, result in df[df['Artist'] == data['artist']].iterrows():
-    #     df = df.append(result)
-        # result_list.append(result)
-    # return_test = result_list.tolist()
-    # print(type(result_list))
-    # list = []
-    # print(df)
 
 
