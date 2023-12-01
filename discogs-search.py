@@ -219,13 +219,19 @@ def price_release_img():
     df_paid = pd.read_csv('collection\\user_input.csv')
     df_paid_columns = ['release_id','paid']
     df_paid = df_paid[df_paid_columns]
-    # paid_row = df_paid[df_paid.release_id == release_id]
-    df_merged = df_paid.merge(df_history, on='release_id')
+    paid_row = df_paid[df_paid.release_id == release_id]
+    df_merged = paid_row.merge(df_history, on='release_id')
 
-    df_merged.plot.barh(x='release_id',y='paid')
+    # Dropping null values so we can deal only with dates with valid price change values.
+    df_plot = df_merged.dropna(axis='columns')
+    print(df_plot)
+
+    ax = df_plot[['paid',df_plot.iloc[:,-1:]]].plot(kind='bar', title ="V comp", figsize=(15, 10), legend=True, fontsize=12)
+
+    # list_price_bar = price_graph.add_subplot(111)
     plt.show()
 
-    return release_id
+    return "test"
 
 # Returns price history data for releases in collection that search values return.
 @app.route('/price', methods=['POST'])
