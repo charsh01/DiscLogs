@@ -8,7 +8,8 @@
 - Collection search can be used to find releases in inventory. Clicking the release image will open a new pane showing details. Option to edit user-defined fields will be added and tracked in user_input.csv.
 - Export to .csv and wantlist side panel buttons only placeholders.
 - Update price history working. This checks the current lowest price listing (the only marketplace data available via the Discogs API) for every release in collection, and if different than the last checked days, adds this to a new dated column in the price_history.csv.
-- Search collection > image click for release details > price history: generates a matplotlib bar graph comparing paid price from user_input.csv to listed prices in price_history.csv. The goal is to have another side panel option to visually display collection-wide data, with options to filter by details such as artist, genre, label, dates, etc.
+- Search collection > image click for release details > price history: generates a matplotlib bar graph comparing paid price from user_input.csv to listed prices in price_history.csv. Will have this passed to html and displayed in browser. Right now saving the graph @ static/images/plot.png.
+- Will also include another side panel option to visually display collection-wide data, with options to filter by details such as artist, genre, label, dates, etc.
 
 TO RUN:
 - In command prompt: flask --app discogs-search run --debug

@@ -306,6 +306,7 @@ search_button.addEventListener('click', e => {
                                 })
                             .then(response => response.json())
                             .then(data => {
+                                // Not working
                                 const price_img = document.createElement("div");
                                 price_img.style.background = "url(/plot.png)";
                                 price_img.style.backgroundSize = "300px";

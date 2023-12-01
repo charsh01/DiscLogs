@@ -1,9 +1,8 @@
 # TO RUN: flask --app discogs-search run --debug
-# flask --app discogs-search --debug run
 
 from flask import (Flask, render_template, abort, jsonify, request,
                    redirect, url_for)
-import matplotlib.pyplot as plt
+
 import numpy as np
 import discogs_client as dc
 from authenticate import authenticate
@@ -199,6 +198,11 @@ def df_edit():
 # Show price history graph for individual release when searching collection and selecting release in collection.
 @app.route('/price_release', methods=['POST'])
 def price_release_img():
+
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+
     release_id = int(request.json)
     df_history = pd.read_csv('collection\\price_history.csv')
     df_paid = pd.read_csv('collection\\user_input.csv')
@@ -210,6 +214,7 @@ def price_release_img():
     df_plot = df_merged.dropna(axis='columns')
     df_plot = df_plot.set_index("release_id")
     df_plot.plot.barh()
+    plt.savefig('static/images/plot.png')
     plt.show()
     return "test"
 
