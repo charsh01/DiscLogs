@@ -5,8 +5,8 @@ import discogs_client as dc
 
 def authenticate():
     # Have user input these manually; will move vars index, outside of function. 
-    string = 'MagneticLairLibraryManager/0.1'
-    token = 'jgSavcSeMQISGWmBjOsjoGyQfpDkqgQGdoDfHCbQ'
+    string = 'DiscLogs/0.1'
+    token = 'crZbnSxcFFmULNTEPOpSpPDaTWGdggiNkuGXsLWy'
     d = dc.Client(string, user_token=token)
     me = d.identity()
     return d
