@@ -12,5 +12,6 @@
 - Will also include another side panel option to visually display collection-wide data, with options to filter by details such as artist, genre, label, dates, etc.
 
 TO RUN:
-- In command prompt: flask --app discogs-search run --debug
-- In browser: http://localhost:5000/
+- In command prompt: Navigate to saved file directory location. Double click the shortbut.bat file, which will open command prompt and run the flask app. You can also manually locate the directory location in command prompt and run "flask --app discogs-search.py run" once there.
+- Open your browser and go to 'http://localhost:5000/' in the address bar.
+- The app should now be usable. Exit command prompt to end the app.

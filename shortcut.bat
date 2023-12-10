@@ -1,0 +1,1 @@
+flask --app discogs-search.py run
