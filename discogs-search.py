@@ -53,7 +53,6 @@ def search():
     print(data)
 
     # Search Discogs using API.
-    # Could do this much more elegantly but out of time.
     def search_for_master(input_data):
         master_id_list = []
         # Search if both artist and title.
